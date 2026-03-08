@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hospitality Concierge</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #c9a96e;
+    --gold-light: #dfc9a0;
+    --gold-dark: #a68340;
+    --charcoal: #1a1a1a;
+    --ivory: #f5f0e8;
+    --smoke: #2a2a2a;
+    --mist: rgba(255, 255, 255, 0.06);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Instrument Sans', sans-serif;
+    background: var(--charcoal);
+    color: var(--ivory);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Grain overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  /* Ambient light effects */
+  .ambient-glow {
+    position: fixed;
+    width: 600px;
+    height: 600px;
+    border-radius: 50%;
+    filter: blur(150px);
+    opacity: 0.08;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .ambient-glow.top-right {
+    top: -200px;
+    right: -100px;
+    background: var(--gold);
+  }
+  .ambient-glow.bottom-left {
+    bottom: -250px;
+    left: -150px;
+    background: var(--gold-dark);
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 60px 32px 120px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+  }
+
+  /* Top bar */
+  .top-bar {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 60px;
+    border-bottom: 1px solid rgba(201, 169, 110, 0.12);
+    margin-bottom: 80px;
+    animation: fadeDown 0.8s ease-out;
+  }
+  .brand {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 14px;
+    font-weight: 400;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+  .status-pill {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--gold-light);
+    opacity: 0.7;
+  }
+  .status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--gold);
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  /* Hero section */
+  .hero {
+    text-align: center;
+    margin-bottom: 72px;
+    animation: fadeUp 1s ease-out 0.2s both;
+  }
+  .hero-ornament {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+  .ornament-line {
+    width: 48px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  }
+  .ornament-diamond {
+    width: 8px;
+    height: 8px;
+    border: 1px solid var(--gold);
+    transform: rotate(45deg);
+  }
+  .hero h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(42px, 7vw, 72px);
+    font-weight: 300;
+    line-height: 1.1;
+    letter-spacing: -1px;
+    margin-bottom: 20px;
+    color: var(--ivory);
+  }
+  .hero h1 em {
+    font-style: italic;
+    color: var(--gold);
+  }
+  .hero p {
+    font-size: 15px;
+    font-weight: 400;
+    line-height: 1.7;
+    color: rgba(245, 240, 232, 0.5);
+    max-width: 480px;
+    margin: 0 auto;
+  }
+
+  /* Conversation card */
+  .convo-card {
+    width: 100%;
+    max-width: 600px;
+    background: linear-gradient(
+      165deg,
+      rgba(255,255,255,0.04) 0%,
+      rgba(255,255,255,0.01) 100%
+    );
+    border: 1px solid rgba(201, 169, 110, 0.15);
+    border-radius: 24px;
+    padding: 48px 40px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    animation: fadeUp 1s ease-out 0.4s both;
+  }
+  .convo-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 200px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold-light), transparent);
+  }
+
+  .mic-visual {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    margin: 0 auto 32px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .mic-ring {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 1px solid rgba(201, 169, 110, 0.25);
+    animation: ringPulse 3s ease-in-out infinite;
+  }
+  .mic-ring:nth-child(2) {
+    inset: -12px;
+    border-color: rgba(201, 169, 110, 0.12);
+    animation-delay: 0.5s;
+  }
+  .mic-ring:nth-child(3) {
+    inset: -24px;
+    border-color: rgba(201, 169, 110, 0.06);
+    animation-delay: 1s;
+  }
+  .mic-icon {
+    width: 28px;
+    height: 28px;
+    stroke: var(--gold);
+    stroke-width: 1.5;
+    fill: none;
+  }
+
+  .convo-card h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 24px;
+    font-weight: 400;
+    margin-bottom: 10px;
+    color: var(--ivory);
+  }
+  .convo-card .subtitle {
+    font-size: 13px;
+    color: rgba(245, 240, 232, 0.4);
+    margin-bottom: 36px;
+    line-height: 1.6;
+  }
+
+  .start-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 16px 40px;
+    border: 1px solid var(--gold);
+    background: transparent;
+    color: var(--gold);
+    font-family: 'Instrument Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    border-radius: 60px;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    position: relative;
+    overflow: hidden;
+  }
+  .start-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--gold);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    border-radius: 60px;
+  }
+  .start-btn:hover::before {
+    opacity: 1;
+  }
+  .start-btn:hover {
+    color: var(--charcoal);
+    transform: translateY(-1px);
+    box-shadow: 0 8px 32px rgba(201, 169, 110, 0.2);
+  }
+  .start-btn span, .start-btn svg {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Features strip */
+  .features {
+    display: flex;
+    gap: 40px;
+    margin-top: 56px;
+    animation: fadeUp 1s ease-out 0.6s both;
+  }
+  .feature {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12px;
+    letter-spacing: 0.5px;
+    color: rgba(245, 240, 232, 0.35);
+  }
+  .feature-dot {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--gold-dark);
+    flex-shrink: 0;
+  }
+
+  /* Widget container - position the ElevenLabs widget */
+  .widget-wrapper {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 1000;
+  }
+
+  /* Animations */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 0.4; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.3); }
+  }
+  @keyframes ringPulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.05); opacity: 0.5; }
+  }
+
+  /* Responsive */
+  @media (max-width: 640px) {
+    .container { padding: 40px 20px 100px; }
+    .top-bar { margin-bottom: 56px; padding-bottom: 40px; }
+    .convo-card { padding: 36px 24px; }
+    .features { flex-direction: column; gap: 16px; align-items: center; }
+    .brand { font-size: 12px; letter-spacing: 3px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="ambient-glow top-right"></div>
+<div class="ambient-glow bottom-left"></div>
+
+<div class="container">
+  <header class="top-bar">
+    <div class="brand">Hospitality Concierge</div>
+    <div class="status-pill">
+      <span class="status-dot"></span>
+      <span>Available 24/7</span>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="hero-ornament">
+      <span class="ornament-line"></span>
+      <span class="ornament-diamond"></span>
+      <span class="ornament-line"></span>
+    </div>
+    <h1>Your Personal<br><em>Concierge</em></h1>
+    <p>Experience seamless hospitality through natural voice conversation. Ask about reservations, local recommendations, or any way we can elevate your stay.</p>
+  </section>
+
+  <div class="convo-card">
+    <div class="mic-visual">
+      <div class="mic-ring"></div>
+      <div class="mic-ring"></div>
+      <div class="mic-ring"></div>
+      <svg class="mic-icon" viewBox="0 0 24 24">
+        <rect x="9" y="2" width="6" height="12" rx="3" />
+        <path d="M5 10a7 7 0 0 0 14 0" />
+        <line x1="12" y1="17" x2="12" y2="22" />
+        <line x1="8" y1="22" x2="16" y2="22" />
+      </svg>
+    </div>
+    <h2>Speak with your concierge</h2>
+    <p class="subtitle">Click the chat button in the bottom-right corner to begin<br>a real-time voice conversation</p>
+    <button class="start-btn" onclick="document.querySelector('elevenlabs-convai')?.shadowRoot?.querySelector('button')?.click()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polygon points="5 3 19 12 5 21 5 3" />
+      </svg>
+      <span>Begin Conversation</span>
+    </button>
+  </div>
+
+  <div class="features">
+    <div class="feature"><span class="feature-dot"></span>Voice-powered AI</div>
+    <div class="feature"><span class="feature-dot"></span>Instant responses</div>
+    <div class="feature"><span class="feature-dot"></span>Multilingual support</div>
+  </div>
+</div>
+
+<!-- ElevenLabs Conversational AI Widget -->
+<div class="widget-wrapper">
+  <elevenlabs-convai agent-id="agent_5601kk7pz0jkedbrecfyr760yx3y"></elevenlabs-convai>
+</div>
+
+<script src="https://elevenlabs.io/convai-widget/index.js" async></script>
+
+</body>
+</html>
